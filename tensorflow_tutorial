@@ -1,0 +1,27 @@
+import tensorflow as tf
+mnist = tf.keras.datasets.mnist  # MNIST 데이터셋을 불러옴
+
+# MNIST 데이터셋을 학습용과 테스트용으로 분리
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# 픽셀 값을 0에서 1 사이로 정규화 (원래는 0~255 사이 값임)
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+# 모델을 Sequential 방식으로 정의
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(input_shape=(28, 28)),  # 입력을 1차원 벡터로 변환 (28x28 이미지를 784차원으로 펼침)
+    tf.keras.layers.Dense(128, activation='relu'),  # 128개의 노드가 있는 완전 연결 층, 활성화 함수는 ReLU 사용
+    tf.keras.layers.Dropout(0.2),  # 20%의 뉴런을 무작위로 비활성화하여 과적합 방지 (드롭아웃 적용)
+    tf.keras.layers.Dense(10, activation='softmax')  # 10개의 노드가 있는 출력 층, 각 클래스(숫자 0~9)에 대한 확률 계산
+])
+
+# 모델 컴파일 (옵티마이저, 손실 함수, 평가 지표 설정)
+model.compile(optimizer='adam',  # Adam 옵티마이저 사용
+              loss='sparse_categorical_crossentropy',  # 손실 함수로 sparse categorical crossentropy 사용
+              metrics=['accuracy'])  # 평가 지표로 정확도 사용
+
+# 모델 학습 (학습 데이터를 5번 반복하여 학습)
+model.fit(x_train, y_train, epochs=5)
+
+# 모델 평가 (테스트 데이터로 성능 평가)
+model.evaluate(x_test, y_test)
