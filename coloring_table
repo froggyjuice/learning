@@ -1,0 +1,24 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib import colors
+
+# 데이터 생성
+data = {
+    "Category": ["Numeric", "Numeric", "Numeric", "Dictionary", "Boolean", "Set", "Sequence Type", "Sequence Type", "Sequence Type"],
+    "Sub-Category": ["Integer", "Complex Number", "Float", "", "", "", "Strings", "List", "Tuple"],
+    "Korean Translation": ["정수", "복소수", "실수", "사전", "논리", "집합", "문자열", "리스트 자료형", "튜플 자료형"]
+}
+
+# 데이터프레임 생성
+df = pd.DataFrame(data)
+
+# 테이블 색상 설정을 위한 스타일링 함수
+def color_table(val):
+    colors_list = ['#B7E3E4', '#F9D8B5', '#FAF3DD', '#FFE5D9', '#BFD7B5']
+    idx = df.index[df['Category'] == val].tolist()[0] % len(colors_list)
+    return f'background-color: {colors_list[idx]}'
+
+# 스타일 적용한 데이터프레임
+styled_df = df.style.applymap(color_table, subset=['Category'])
+
+import ace_tools as tools; tools.display_dataframe_to_user(name="Python Data Types with Colors", dataframe=df)
