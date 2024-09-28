@@ -1,0 +1,97 @@
+import tensorflow as tf
+mnist = tf.keras.datasets.mnist  # MNIST 데이터셋을 불러옴
+
+# MNIST 데이터셋을 학습용과 테스트용으로 분리
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# 픽셀 값을 0에서 1 사이로 정규화 (원래는 0~255 사이 값임)
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+# 모델을 Sequential 방식으로 정의
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(input_shape=(28, 28)),  # 입력을 1차원 벡터로 변환 (28x28 이미지를 784차원으로 펼침)
+    tf.keras.layers.Dense(128, activation='relu'),  # 128개의 노드가 있는 완전 연결 층, 활성화 함수는 ReLU 사용
+    tf.keras.layers.Dropout(0.2),  # 20%의 뉴런을 무작위로 비활성화하여 과적합 방지 (드롭아웃 적용)
+    tf.keras.layers.Dense(10, activation='softmax')  # 10개의 노드가 있는 출력 층, 각 클래스(숫자 0~9)에 대한 확률 계산
+])
+
+# 모델 컴파일 (옵티마이저, 손실 함수, 평가 지표 설정)
+model.compile(optimizer='adam',  # Adam 옵티마이저 사용
+              loss='sparse_categorical_crossentropy',  # 손실 함수로 sparse categorical crossentropy 사용
+              metrics=['accuracy'])  # 평가 지표로 정확도 사용
+
+# 모델 학습 (학습 데이터를 5번 반복하여 학습)
+model.fit(x_train, y_train, epochs=5)
+
+# 모델 평가 (테스트 데이터로 성능 평가)
+model.evaluate(x_test, y_test)
+
+
+#############################################################################
+
+여기 **VS Code**에서 손글씨 숫자 인식 모델을 실제로 활용할 수 있는 간단한 웹 애플리케이션 예시 코드를 제공할게요. 이 예시는 `Flask`와 `TensorFlow`를 사용하여 이미지를 업로드하고, 모델이 숫자를 예측하는 웹 API를 만들 수 있습니다.
+
+1. **필요한 패키지 설치**
+   ```bash
+   pip install flask tensorflow pillow
+   ```
+
+2. **Flask 웹 애플리케이션 코드 (app.py)**
+
+   ```python
+   import numpy as np
+   from flask import Flask, request, jsonify
+   from PIL import Image
+   import tensorflow as tf
+
+   # Flask 애플리케이션 초기화
+   app = Flask(__name__)
+
+   # 사전 학습된 MNIST 모델을 로드
+   mnist = tf.keras.datasets.mnist
+   (x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+   # 모델 정의
+   model = tf.keras.models.Sequential([
+       tf.keras.layers.Flatten(input_shape=(28, 28)),
+       tf.keras.layers.Dense(128, activation='relu'),
+       tf.keras.layers.Dropout(0.2),
+       tf.keras.layers.Dense(10, activation='softmax')
+   ])
+
+   model.compile(optimizer='adam',
+                 loss='sparse_categorical_crossentropy',
+                 metrics=['accuracy'])
+
+   model.fit(x_train, y_train, epochs=5)
+
+   # 이미지 전처리 함수
+   def preprocess_image(image):
+       image = image.resize((28, 28)).convert('L')  # 흑백으로 변환 후 28x28 크기로 조정
+       image = np.array(image) / 255.0  # 픽셀 값을 0-1 사이로 정규화
+       return image.reshape(1, 28, 28)  # 모델 입력 형태에 맞게 변경
+
+   # 예측을 위한 API 엔드포인트
+   @app.route('/predict', methods=['POST'])
+   def predict():
+       file = request.files['file']
+       img = Image.open(file.stream)
+       img = preprocess_image(img)
+       prediction = model.predict(img)
+       predicted_digit = np.argmax(prediction)
+       return jsonify({'prediction': int(predicted_digit)})
+
+   if __name__ == '__main__':
+       app.run(debug=True)
+   ```
+
+3. **이미지 업로드 테스트**
+   - 서버 실행 후 `http://127.0.0.1:5000/predict`로 POST 요청을 보내 이미지를 업로드하면, 해당 숫자를 예측해 줍니다.
+   
+   이미지 업로드 요청은 아래와 같은 방식으로 테스트할 수 있습니다.
+
+   ```bash
+   curl -X POST -F 'file=@path_to_your_image.png' http://127.0.0.1:5000/predict
+   ```
+
+이 코드는 간단한 웹 API를 통해 이미지를 입력받아 MNIST 데이터셋으로 학습된 모델이 손글씨 숫자를 예측하도록 합니다.
