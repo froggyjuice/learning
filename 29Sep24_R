@@ -1,0 +1,20 @@
+# 데이터 생성
+data <- data.frame(
+  키 = c(160, 170, 180, 150, 175),
+  몸무게 = c(60, 70, 80, 55, 72)
+)
+
+# 데이터 확인
+print("데이터 확인:")
+print(data)
+
+# 선형 회귀 분석
+model <- lm(몸무게 ~ 키, data = data)
+
+# 회귀 분석 결과 요약
+print("회귀 분석 결과 요약:")
+summary(model)
+
+# 회귀선 시각화
+plot(data$키, data$몸무게, main="키와 몸무게의 관계", xlab="키(cm)", ylab="몸무게(kg)")
+abline(model, col="blue")
