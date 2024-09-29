@@ -25,3 +25,34 @@ print("\n영어 점수 기준으로 정렬된 학생들:\n", sorted_df)
 # 수학과 과학의 상관관계 계산
 correlation = df['수학'].corr(df['과학'])
 print("\n수학과 과학 점수의 상관관계: ", correlation)
+
+###########################################
+
+# 필요한 라이브러리 import
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
+
+# 모델 생성
+model = Sequential([
+    Dense(64, activation='relu', input_shape=(10,)),
+    Dense(32, activation='relu'),
+    Dense(1, activation='sigmoid')  # 이진 분류를 위한 출력층
+])
+
+# 모델 컴파일
+model.compile(optimizer=Adam(learning_rate=0.001),
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
+
+# 학습 데이터 (x_train, y_train), 검증 데이터 (x_val, y_val) 준비
+# x_train, y_train, x_val, y_val는 numpy 배열이나 TensorFlow 데이터셋
+
+# 모델 훈련
+history = model.fit(x_train, y_train,
+                    batch_size=32,
+                    epochs=10,
+                    validation_data=(x_val, y_val),
+                    callbacks=[]  # 필요한 콜백 함수들 추가 가능
+                   )
+
