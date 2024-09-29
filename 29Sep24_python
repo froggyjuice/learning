@@ -1,0 +1,27 @@
+import pandas as pd
+
+# 데이터프레임 생성
+data = {
+    '이름': ['지호', '민수', '수지', '영희'],
+    '수학': [90, 85, 88, 92],
+    '영어': [85, 78, 90, 88],
+    '과학': [95, 89, 92, 85]
+}
+
+df = pd.DataFrame(data)
+
+# 각 과목별 평균 점수 계산
+mean_scores = df[['수학', '영어', '과학']].mean()
+print("과목별 평균 점수:\n", mean_scores)
+
+# 수학 점수가 90점 이상인 학생 필터링
+high_math_scores = df[df['수학'] >= 90]
+print("\n수학 점수가 90점 이상인 학생:\n", high_math_scores)
+
+# 영어 점수 기준으로 학생 정렬
+sorted_df = df.sort_values(by='영어', ascending=False)
+print("\n영어 점수 기준으로 정렬된 학생들:\n", sorted_df)
+
+# 수학과 과학의 상관관계 계산
+correlation = df['수학'].corr(df['과학'])
+print("\n수학과 과학 점수의 상관관계: ", correlation)
